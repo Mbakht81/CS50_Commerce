@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html" %}
+{@ login_required}
+{% block body %}
+<div>
+    {% for message in messages %}
+        {{message}}
+        {% endfor %}
+    {% if error_message != "" %}
+        {{error_message}}
+    {% endif %}
+</div>
+<form action="{% url 'createlisting' %}" method="post">
+    {% csrf_token %}
+    <div>
+        <input type="text" name ="title" value="" placeholder="Title">
+    </div>
+    <div>
+        <textarea value="desctription" name ="description" rows="4" cols="40" maxlength="130" placeholder="Description"></textarea>
+    </div>
+    <div>
+        <input type="number" value="" name ="amount" placeholder="Starting Bid" >
+        <label for="$"></label>
+
+    </div>
+    <div>
+        <input type="url" value="" name ="imageURL" placeholder="Image URL">
+    </div>
+    <div>
+        <select name="category"  placeholder="Category">
+           
+            {% for category in categories %}
+            {% if category.name.strip == "No Category" %}
+            <option value={{category.id}} selected> {{category.name}} </option>
+            {% else %}
+            <option value={{category.id}}> {{category.name}}</option>
+            {% endif%}
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <input type="submit" >
+    </div>
+</form>
+{% endblock%}

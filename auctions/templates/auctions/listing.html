@@ -1,0 +1,112 @@
+{% extends "auctions/layout.html" %}
+
+{% block body%}
+<div style="display: flex;">
+    <div>
+    <h3>Listing: {{listing.title}}</h3>
+    </div>
+    <div>
+        {% if user.is_authenticated %}
+        <form action="{% url 'close_listing' listing.id %}" method="post">
+        {% csrf_token %}
+
+        {% if user ==  listing.created_by %}
+
+        <input type="submit" name="close_listing" value="Close Listing" style="border: 10px; border-style: solid;  background-color:blue ; color: white;"></input>  
+
+        {% endif %}
+        </form>
+        {% endif %}
+    </div>
+</div>
+<div style="display: flex; padding-top: 50px;">
+    <div>
+    {% if user.is_authenticated %}
+    <form action="{% url 'update_watchlist' listing.id %}" method="post">
+    {% csrf_token %}
+    {% if listing in  user.watchlist.all %}
+
+    <input type="submit" name="remove_watchlist" value="Watchlist" style="border: none; border-radius: 5px; background-color:crimson ; color: white;"></input>  
+    {% else %}
+    <input type="submit" name="add_watchlist" value="Add to Watchlist" style="border: none; background-color: white; color: crimson" ></input>  
+
+    {% endif %}
+    </form>
+    {% endif %}
+    </div>
+    {% if not listing.is_active %}
+    <div style="padding-left:10px ; color: crimson;" >
+        This Listing is closed.
+    </div>
+    {% endif %}
+    <div style="padding-left:10px ;">
+        {% if  not listing.is_active and user == bids.0.user %}
+        <label for=""> You are the winner of this auction!</label>
+        {% endif %}
+    </div>
+</div>
+<div style="padding-top: 30px;">
+    <img src="{{listing.image_url}}" width = 200px alt="">
+</div>
+<div>
+    {{listing.description}}
+</div>
+<div style="font-size: 15px; font-weight: bold;">
+    ${{listing.amount}}
+</div>
+<div>
+    <label for="">{{bids|length}} bid(s) so far. Current bid: ${{bids.0.amount}}</label>
+    {% if user == bids.0.user %}
+    <!--{{bids.0.amount}}-->
+        <label for="">Your bid is the current bid</label>
+    {% endif %}
+
+    <form action="{% url 'place_bid' listing.id %}" method="post">
+    {% csrf_token %}
+    <input type="number" name ="bid_amount" value ="" placeholder="Bid"">
+    <input type="submit" value="Place Bid" name="" id=""> 
+
+    {% if biderror != None %}
+        {% if biderror %}
+        <label>The bid should be higher than the current bid</label>
+        {% endif %}
+    {% endif %} 
+    </form>
+</div>
+<div>
+ <h6>Details:</h6>   
+    <ul>
+        <li>Listed by: {{listing.created_by}}</li>
+        <li>Category: {{listing.category}}</li>
+    </ul>
+</div>
+
+
+<h6>Comments:</h6>
+
+{% for comment in comments.all %}
+<div style="display: flex; padding: 10px;" >
+    <div style="font-weight: bold ; font-size: 12px;">
+        {{comment.user}} on {{comment.created_date}} :
+    </div>
+    <div style="font-size: 12px; padding-left: 10px;">
+    {{comment.text}}
+    </div>
+</div>
+{% endfor %}
+
+<div>Add Comment:</div>
+<form action="{% url 'add_comment' listing.id %}" method ="post">
+{% csrf_token %}
+
+<div>
+    <textarea value="" name ="text" rows="4" cols="40" maxlength="130" placeholder="Place Comment here" > </textarea>
+</div>
+<div>
+    <input type="submit" value="Add">
+</div>
+</form>
+</div>
+
+
+{% endblock %}
